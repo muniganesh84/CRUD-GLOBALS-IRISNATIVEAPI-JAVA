@@ -18,14 +18,14 @@ This application can be built and executed in the container by running `./run.sh
 # Template Contest Submissions
 
 ## Inspiration
-To make an easy template to start building apps using the IRIS native API
+To provide tool to manage the data with minimum access.
 
 ## What it does
 This is JAVA application and it allows to Create,View,Update and Search Globals which are in IRIS instance. This Java application can be modified in such way that we can install this application in any system and manage the globals which are in different IRIS instance.
 We can modify this application to restrict the access of globals to the different instances to different users.
 
 ## Challenges I ran into
-no challenges
+No Challanges.
 
 ## Accomplishments that I proud of
 
