@@ -1,12 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 import com.intersystems.jdbc.IRIS;
 import com.intersystems.jdbc.IRISConnection;
 import com.intersystems.jdbc.IRISIterator;
 import java.sql.DriverManager;
+import java.util.Arrays;
+import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 
@@ -55,29 +53,63 @@ public class IRISNative {
                         break;
                         
             }
-            return;
+            Displayoption();
+            
 
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
+            
         }
     }
     public static void GlobalCreate()
     {
         try{
-            IRISConnection conn = (IRISConnection) DriverManager.getConnection("jdbc:IRIS://localhost:"+superserverPort+"/"+namespace,username,password);
-            IRIS iris = IRIS.createIRIS(conn);
             Scanner reader = new Scanner(System.in);
             System.out.print("Enter a Global Name: ");
             String InpGlobalName = reader.nextLine();
-            System.out.println("Enter Subscript for global " + InpGlobalName);
+            if ((InpGlobalName.isEmpty()==false)&&(InpGlobalName.contains("^")==false)) InpGlobalName="^"+InpGlobalName;
+            if (InpGlobalName.isEmpty()==true) {
+                System.out.println("EMPTY Value entered \n ");
+                return;
+            }
+            System.out.println("Enter Subscript(s) as comma separated, for global " + InpGlobalName);
+            String Inpsubscrpts = reader.nextLine();
+            
+            System.out.println("Enter global Value");
+            String InpGlobalVal = reader.nextLine();
+            
+            Inpsubscrpts=Inpsubscrpts.replace("\"", "");
+            String[] SubScrpts = Inpsubscrpts.split(",");
+            IRISConnection conn = (IRISConnection) DriverManager.getConnection("jdbc:IRIS://localhost:"+superserverPort+"/"+namespace,username,password);
+            IRIS iris = IRIS.createIRIS(conn);
+            if (iris.getString(InpGlobalName,SubScrpts)==null){
+                iris.set(InpGlobalVal, InpGlobalName, SubScrpts);
+                String outval=iris.getString(InpGlobalName,SubScrpts);
+                if (outval.equals(InpGlobalVal)) {
+                    System.out.println("Global Created:");
+                    String tmpdisstr="";
+                    for (String strTemp : SubScrpts){
+                        if (tmpdisstr.isEmpty()==false) tmpdisstr=tmpdisstr+"\",\""+strTemp;
+                        else tmpdisstr=strTemp;
+                    }
+                    System.out.println(InpGlobalName+"(\""+tmpdisstr+"\")=\""+outval+"\"");
+                }
+            }
+            else {
+                System.out.println("Global Already Exists");
+            }
+            iris.close();
+            conn.close();
             
         }
     catch (Exception ex) {
             System.out.println(ex.getMessage());
         }
+    
     }
      public static void GlobalView(){
         try {    
+       restart:while(true) {
             IRISConnection conn = (IRISConnection) DriverManager.getConnection("jdbc:IRIS://localhost:"+superserverPort+"/"+namespace,username,password);
             IRIS iris = IRIS.createIRIS(conn);
             Scanner reader = new Scanner(System.in);
@@ -86,11 +118,11 @@ public class IRISNative {
             System.out.println("You entered: " + InpGlobalName);
             if (InpGlobalName.isEmpty()==true) {
                 System.out.println("EMPTY Value enetered \n ");
-                Displayoption();
+                iris.close();
+                conn.close();
+                break;
             }
-            if (InpGlobalName.contains("^")==false){
-                InpGlobalName="^"+InpGlobalName;
-            }
+            if (InpGlobalName.contains("^")==false) InpGlobalName="^"+InpGlobalName;
                    
                 
             IRISIterator subscriptIter = iris.getIRISIterator(InpGlobalName);
@@ -99,7 +131,8 @@ public class IRISNative {
             
             if (subscriptIter.hasNext()==false){
                 System.out.print("Global:"+InpGlobalName+" Does not exists \n");
-                GlobalSearch();
+                continue;
+                
             }
             int cnt=0;
             String DisplayStr="";
@@ -109,69 +142,97 @@ public class IRISNative {
                     String Subvalue= String.valueOf(subscriptIter.getValue());
                     if (InpGlobalName.contains("(")==false) DisplayStr=InpGlobalName+"(\""+subscript+"\")="+Subvalue;
                     else if ((InpGlobalName.contains(")")==true)) {
-                        if (isObjectInteger(subscript)==false) DisplayStr=InpGlobalName.replace(")", "") +","+subscript+")="+Subvalue;
-                    }   else DisplayStr=InpGlobalName.replace(")", "") +","+subscript+"\")="+Subvalue;
+                        if (isObjectInteger(subscript)==false) DisplayStr=InpGlobalName.replace(")", "") +","+subscript+")=\""+Subvalue+"\"";
+                    }   else DisplayStr=InpGlobalName.replace(")", "") +","+subscript+"\")=\""+Subvalue+"\"";
                          
                   
                     System.out.println(DisplayStr);
                     
                 }
             }
-            System.out.println();
-            // close connection and IRIS object
+           // close connection and IRIS object
             iris.close();
             conn.close();
+            break;
+       }
         }
         catch (Exception ex) {
                 System.out.println(ex.getMessage());
               
         }
-      Displayoption();  
+      
     }
     public static void GlobalSearch(){
-        try {    
-            IRISConnection conn = (IRISConnection) DriverManager.getConnection("jdbc:IRIS://localhost:"+superserverPort+"/"+namespace,username,password);
-            IRIS iris = IRIS.createIRIS(conn);
+    try 
+    {
+        restart:while(true){
             Scanner reader = new Scanner(System.in);
             System.out.print("Enter a Global Name: ");
             String InpGlobalName = reader.nextLine();
-            System.out.println("You entered: " + InpGlobalName);
+            System.out.println("You Entered: " + InpGlobalName);
             if (InpGlobalName.isEmpty()==true) {
-                System.out.println("EMPTY Value enetered \n ");
-                Displayoption();
-            }   
+                System.out.println("EMPTY Value entered \n ");
+                break ;
+            }
+            if (InpGlobalName.contains("^")==false) InpGlobalName="^"+InpGlobalName;
+            IRISConnection conn = (IRISConnection) DriverManager.getConnection("jdbc:IRIS://localhost:"+superserverPort+"/"+namespace,username,password);
+            IRIS iris = IRIS.createIRIS(conn);
             IRISIterator subscriptIter = iris.getIRISIterator(InpGlobalName);
-            //System.out.print(subscriptIter+"\n");
-            
-            
+                      
             if (subscriptIter.hasNext()==false){
                 System.out.print("Global:"+InpGlobalName+" Does not exists \n");
-                GlobalSearch();
+                continue;
             }
             if (subscriptIter.hasNext()==true){
-                System.out.print("Enter the value to find : ");
-                String InpFind = reader.nextLine();
-                System.out.println("Finding : " + InpFind + " in Global "+ InpGlobalName);
-                while (subscriptIter.hasNext()) {
-                    String subscript = subscriptIter.next();
-                    String Subvalue= String.valueOf(subscriptIter.getValue());
-                    if (Subvalue.contains(InpFind)==true) {
-                        //subscriptIter.
-                        System.out.println(InpGlobalName+","+subscript+"="+Subvalue);
-                    }
-                }
+                findglobal(InpGlobalName,iris);
             }
-            System.out.println();
-            // close connection and IRIS object
             iris.close();
             conn.close();
         }
-        catch (Exception ex) {
-                System.out.println(ex.getMessage());
-              
-        }
-      Displayoption();  
     }
+    catch (Exception ex) {
+        System.out.println(ex.getMessage());
+    }
+      
+    }
+  static void findglobal(String InpGlobalName,IRIS piris)
+  {
+      try
+      {
+        restart:while(true)
+        { 
+            IRISIterator tmpsubobj = piris.getIRISIterator(InpGlobalName);
+            Scanner reader = new Scanner(System.in);
+            System.out.print("Enter the value to find : ");
+            String InpFind = reader.nextLine();
+            if (InpFind.isEmpty()==true){
+                System.out.print("EMPTY Value entered \n");
+                break;
+            }
+           
+            System.out.println("Finding : " + InpFind + " in Global "+ InpGlobalName);
+            while (tmpsubobj.hasNext()) 
+            {
+               String subscript = tmpsubobj.next();
+               String Subvalue= String.valueOf(tmpsubobj.getValue());
+               if (Subvalue.contains(InpFind)==true) 
+               {   
+                   String DisplayStr="";
+                   if (InpGlobalName.contains("(")==false) DisplayStr=InpGlobalName+"(\""+subscript+"\")=\""+Subvalue+"\"";
+                    else if ((InpGlobalName.contains(")")==true)) {
+                        if (isObjectInteger(subscript)==false) DisplayStr=InpGlobalName.replace(")", "") +","+subscript+")=\""+Subvalue+"\"";
+                    }   else DisplayStr=InpGlobalName.replace(")", "") +","+subscript+"\")=\""+Subvalue+"\""; 
+                   
+                   System.out.println(DisplayStr);
+               }
+            }
+         }
+        }
+        catch(IllegalStateException | NoSuchElementException ex){
+            System.out.println(ex.getMessage());
+        }
+    
+  }
  public static boolean isObjectInteger(Object o)
 {
     return o instanceof Integer;
