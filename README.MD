@@ -1,5 +1,5 @@
 # CRUD-GLOBALS-IRISNATIVEAPI-JAVA
-This is utility tool to manage the globals which are in IRIS instance from a remote machine by using java program.
+This is utility tool to manage the globals which are in IRIS instance by using java program.
 
 
 ## Getting started documentation
@@ -13,9 +13,6 @@ This is utility tool to manage the globals which are in IRIS instance from a rem
 You should provide a repository where docker-compose can be used to build a container image that contains Intersystems IRIS and any setup you need for your application. 
 You should include instructions for running your application within the docker image. 
 
-Sample programs are contained in this repository to make it easier to get started.
-* [Java](https://github.com/intersystems-community/native-api-contest-template/blob/master/src/java/README.md)
-
 This application can be built and executed in the container by running `./run.sh` from their respective directories.
 
 # Template Contest Submissions
@@ -24,7 +21,8 @@ This application can be built and executed in the container by running `./run.sh
 To make an easy template to start building apps using the IRIS native API
 
 ## What it does
-Please take some time to explain what your application does, now it uses the IRIS native API, and what makes it awesome.
+This is JAVA application and it allows to Create,View,Update and Search Globals which are in IRIS instance. This Java application can be modified in such way that we can install this application in any system and manage the globals which are in different IRIS instance.
+We can modify this application to restrict the access of globals to the different instances to different users.
 
 ## Challenges I ran into
 no challenges
@@ -70,7 +68,6 @@ If docker-compose fails, the two most common problems are:
 2. Port unavailable.  If you're already running a container on your machine, you might need to change the port number that is exported.
 
 ## How to start coding
-
 
 
 ## Collaboration 
