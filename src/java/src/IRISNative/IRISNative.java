@@ -1,3 +1,9 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
 import com.intersystems.jdbc.IRIS;
 import com.intersystems.jdbc.IRISConnection;
 import com.intersystems.jdbc.IRISIterator;
@@ -28,12 +34,15 @@ public class IRISNative {
     {
            try {
             // open connection to InterSystems IRIS instance using connection string
+            
             Scanner reader = new Scanner(System.in);
             System.out.print("Select option \n");
             System.out.print("1.VIEW \n");
             System.out.print("2.CREATE \n");
-            System.out.print("3.SEARCH \n");
-            System.out.print("4.EXIT \n");
+            System.out.print("3.UPDATE \n");
+            System.out.print("4.DELETE \n");
+            System.out.print("5.SEARCH \n");
+            System.out.print("6.EXIT \n");
             Integer InpOption = reader.nextInt();
             
             switch (InpOption){
@@ -44,13 +53,18 @@ public class IRISNative {
                         GlobalCreate();
                         break;
                 case 3: System.out.print("Selected option "+InpOption+"\n");
-                        GlobalSearch();
+                        GlobalUpdate();
                         break;
                 case 4: System.out.print("Selected option "+InpOption+"\n");
-                        return;
-                        
-                default:System.out.print("Invalid Option "+InpOption+"\n");
+                        GlobalDelete();
                         break;
+                case 5: System.out.print("Selected option "+InpOption+"\n");
+                        GlobalSearch();
+                        break;
+                case 6: System.out.print("Selected option "+InpOption+"\n");
+                        return;
+               default: System.out.print("Invalid Option "+InpOption+"\n");
+                        return;
                         
             }
             Displayoption();
@@ -61,9 +75,10 @@ public class IRISNative {
             
         }
     }
-    public static void GlobalCreate()
+public static void GlobalCreate()
     {
-        try{
+        
+    try{
             Scanner reader = new Scanner(System.in);
             System.out.print("Enter a Global Name: ");
             String InpGlobalName = reader.nextLine();
@@ -80,11 +95,14 @@ public class IRISNative {
             
             Inpsubscrpts=Inpsubscrpts.replace("\"", "");
             String[] SubScrpts = Inpsubscrpts.split(",");
-            IRISConnection conn = (IRISConnection) DriverManager.getConnection("jdbc:IRIS://localhost:"+superserverPort+"/"+namespace,username,password);
+        try (IRISConnection conn = (IRISConnection) DriverManager.getConnection("jdbc:IRIS://localhost:"+superserverPort+"/"+namespace,username,password)) {
             IRIS iris = IRIS.createIRIS(conn);
-            if (iris.getString(InpGlobalName,SubScrpts)==null){
-                iris.set(InpGlobalVal, InpGlobalName, SubScrpts);
-                String outval=iris.getString(InpGlobalName,SubScrpts);
+            String retvaltstr=iris.getString(InpGlobalName, (Object[])SubScrpts);
+            
+            if (retvaltstr==null)
+            {
+                iris.set(InpGlobalVal, InpGlobalName, (Object[])SubScrpts);
+                String outval=iris.getString(InpGlobalName,(Object[])SubScrpts);
                 if (outval.equals(InpGlobalVal)) {
                     System.out.println("Global Created:");
                     String tmpdisstr="";
@@ -100,13 +118,104 @@ public class IRISNative {
             }
             iris.close();
             conn.close();
+        }
             
         }
     catch (Exception ex) {
-            System.out.println(ex.getMessage());
+            System.out.println("Exception -- "+ex.getMessage());
         }
     
     }
+public static void GlobalUpdate()
+    {
+        
+    try{
+            Scanner reader = new Scanner(System.in);
+            System.out.print("Enter a Global Name: ");
+            String InpGlobalName = reader.nextLine();
+            if ((InpGlobalName.isEmpty()==false)&&(InpGlobalName.contains("^")==false)) InpGlobalName="^"+InpGlobalName;
+            if (InpGlobalName.isEmpty()==true) {
+                System.out.println("EMPTY Value entered \n ");
+                return;
+            }
+            System.out.println("Enter Subscript(s) as comma separated, for global " + InpGlobalName);
+            String Inpsubscrpts = reader.nextLine();
+            
+            System.out.println("Enter global Value");
+            String InpGlobalVal = reader.nextLine();
+            
+            Inpsubscrpts=Inpsubscrpts.replace("\"", "");
+            String[] SubScrpts = Inpsubscrpts.split(",");
+        try (IRISConnection conn = (IRISConnection) DriverManager.getConnection("jdbc:IRIS://localhost:"+superserverPort+"/"+namespace,username,password)) {
+            IRIS iris = IRIS.createIRIS(conn);
+            String retvaltstr=iris.getString(InpGlobalName, (Object[])SubScrpts);
+            if (retvaltstr!=null)
+            {
+                iris.set(InpGlobalVal, InpGlobalName, (Object[])SubScrpts);
+                String outval=iris.getString(InpGlobalName,(Object[])SubScrpts);
+                if (outval.equals(InpGlobalVal)) {
+                    System.out.println("Global Updated :");
+                    String tmpdisstr="";
+                    for (String strTemp : SubScrpts){
+                        if (tmpdisstr.isEmpty()==false) tmpdisstr=tmpdisstr+"\",\""+strTemp;
+                        else tmpdisstr=strTemp;
+                    }
+                    System.out.println(InpGlobalName+"(\""+tmpdisstr+"\")=\""+outval+"\"");
+                }
+            }
+            else {
+                System.out.println("Global Does not Exists !!!");
+            }
+            iris.close();
+            conn.close();
+        }
+            
+        }
+    catch (Exception ex) {
+            System.out.println("Exception -- "+ex.getMessage());
+        }
+    
+    }
+public static void GlobalDelete()
+    {
+        
+    try
+    {
+            Scanner reader = new Scanner(System.in);
+            System.out.print("Enter a Global Name: ");
+            String InpGlobalName = reader.nextLine();
+            if ((InpGlobalName.isEmpty()==false)&&(InpGlobalName.contains("^")==false)) InpGlobalName="^"+InpGlobalName;
+            if (InpGlobalName.isEmpty()==true) {
+                System.out.println("EMPTY Value entered \n ");
+                return;
+            }
+            System.out.println("Enter Subscript(s) as comma separated, for global " + InpGlobalName);
+            String Inpsubscrpts = reader.nextLine();
+            
+        try (IRISConnection conn = (IRISConnection) DriverManager.getConnection("jdbc:IRIS://localhost:"+superserverPort+"/"+namespace,username,password)) {
+            IRIS iris = IRIS.createIRIS(conn);
+            if (Inpsubscrpts.isEmpty()==false) {
+                Inpsubscrpts=Inpsubscrpts.replace("\"", "");
+                String[] SubScrpts = Inpsubscrpts.split(",");
+                iris.kill(InpGlobalName,(Object[])SubScrpts);
+                System.out.println("Global Deleted ");
+                
+             }
+            else{
+                iris.kill(InpGlobalName);
+                System.out.println("Global Deleted ");
+            }
+            iris.close();
+            conn.close();
+            
+        }
+    }
+    catch (Exception ex) {
+            System.out.println("Exception -- "+ex.getMessage());
+        }
+    
+    }
+
      public static void GlobalView(){
         try {    
        restart:while(true) {
@@ -238,5 +347,5 @@ public class IRISNative {
     return o instanceof Integer;
 }
 
-    
+   
 }
