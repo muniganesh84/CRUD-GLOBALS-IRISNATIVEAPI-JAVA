@@ -40,7 +40,15 @@ $ docker-compose up -d --build
 
 ## How to Work With it
 
-Start a bash shell to the container and execute `run.sh`
+Start a bash shell to the container by using below command
+
+docker exec -it containerid bash
+
+then goto the directory where the java program resides by using below command
+
+cd src/java
+
+and then execute `run.sh`
 
 
 ## Troubleshooting Docker-Compose
