@@ -1,12 +1,12 @@
 ﻿﻿# Example Native API Application
 
-Taken straight from https://docs.intersystems.com/irislatest/csp/docbook/Doc.View.cls?KEY=AFL_dbnative
+See https://docs.intersystems.com/iris20232/csp/docbook/DocBook.UI.Page.cls?KEY=BJAVNAT_about
 
 ## How to build this example
 
 On Windows
 ```
-javac -classpath "C:\InterSystems\IRIS\dev\java\lib\JDK18\intersystems-gateway-3.1.0.jar;C:\InterSystems\IRIS\dev\java\lib\JDK18\intersystems-jdbc-3.1.0.jar" -d bin src\IRISNative\IRISNative.java
+javac -classpath "C:\InterSystems\IRIS\dev\java\lib\1.8\intersystems-gateway-3.7.1.jar;C:\InterSystems\IRIS\dev\java\lib\JDK18\intersystems-jdbc-3.7.1.jar" -d bin src\IRISNative\IRISNative.java
 ```
 
 On UNIX
@@ -15,7 +15,7 @@ On UNIX
 ```
 cd src/java
 
-javac -classpath /usr/irissys/dev/java/lib/JDK18/intersystems-jdbc-3.1.0.jar -d bin src/IRISNative/IRISNative.java
+javac -classpath /usr/irissys/dev/java/lib/JDK18/intersystems-jdbc-3.7.1.jar -d bin src/IRISNative/IRISNative.java
 ```
 
 
