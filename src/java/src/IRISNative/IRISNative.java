@@ -20,7 +20,7 @@ import java.util.Scanner;
  */
 public class IRISNative {
     
-    protected static int superserverPort = 51773;
+    protected static int superserverPort = 1972;
     protected static String namespace = "USER";
     protected static String username = "_SYSTEM";
     protected static String password = "SYS";
@@ -235,7 +235,7 @@ public static void GlobalDelete()
                    
                 
             IRISIterator subscriptIter = iris.getIRISIterator(InpGlobalName);
-            //System.out.print(subscriptIter+"\n");
+            // System.out.print(subscriptIter+"\n");
             
             
             if (subscriptIter.hasNext()==false){
@@ -248,15 +248,17 @@ public static void GlobalDelete()
             if (subscriptIter.hasNext()==true){
                 while (subscriptIter.hasNext()) {
                     String subscript = subscriptIter.next();
-                    String Subvalue= String.valueOf(subscriptIter.getValue());
+				//	String Subvalue= String.valueOf(subscriptIter.getValue());
+				//  returns only java oref  !!!!
+					String Subvalue = iris.getString(InpGlobalName,subscript);
+					
                     if (InpGlobalName.contains("(")==false) DisplayStr=InpGlobalName+"(\""+subscript+"\")="+Subvalue;
                     else if ((InpGlobalName.contains(")")==true)) {
                         if (isObjectInteger(subscript)==false) DisplayStr=InpGlobalName.replace(")", "") +","+subscript+")=\""+Subvalue+"\"";
                     }   else DisplayStr=InpGlobalName.replace(")", "") +","+subscript+"\")=\""+Subvalue+"\"";
                          
                   
-                    System.out.println(DisplayStr);
-                    
+                    System.out.println(DisplayStr);                  
                 }
             }
            // close connection and IRIS object
