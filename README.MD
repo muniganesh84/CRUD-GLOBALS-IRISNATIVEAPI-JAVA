@@ -25,7 +25,6 @@ Using VSCode and JAVA 1.8, IRIS Community Edition in Docker.
 ## Prerequisites
 Make sure you have [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) and [Docker desktop](https://www.docker.com/products/docker-desktop) installed.
 
-
 Clone/git pull the repo into any local directory e.g. like it is shown below:
 
 ```
@@ -42,7 +41,7 @@ $ docker-compose up -d --build
 
 Start a bash shell to the container by using below command
 
-docker exec -it containerid bash
+docker exec -it iris bash
 
 then goto the directory where the java program resides by using below command
 
@@ -50,6 +49,7 @@ cd src/java
 
 and then execute `run.sh`
 
+test guide in [DC Article](https://community.intersystems.com/post/crud-globals-irisnativeapi-java)
 
 ## Troubleshooting Docker-Compose
 
